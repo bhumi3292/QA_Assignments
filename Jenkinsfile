@@ -14,25 +14,19 @@ pipeline {
     stages {
         stage('Configure Jenkins Environment') {
             steps {
-                echo 'Clearing Content Security Policy...'
-                script {
-                    clearCSP()
-                }
+                script { clearCSP() }
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                echo 'Installing testing packages...'
                 bat 'npm ci'
-                echo 'Installing Playwright Browsers...'
                 bat 'npx playwright install --with-deps chromium'
             }
         }
         
         stage('Execute Tests') {
             steps {
-                echo 'Running automation framework...'
                 bat 'npx playwright test'
             }
         }
@@ -40,15 +34,18 @@ pipeline {
 
     post {
         always {
-            echo 'Publishing Playwright HTML Test Report...'
-            publishHTML(target: [
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'playwright-report',
-                reportFiles: 'index.html',
-                reportName: 'Playwright HTML Report'
-            ])
+            
+            node('built-in') {
+                echo 'Publishing Playwright HTML Test Report...'
+                publishHTML(target: [
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'playwright-report',
+                    reportFiles: 'index.html',
+                    reportName: 'Playwright HTML Report'
+                ])
+            }
         }
     }
 }
