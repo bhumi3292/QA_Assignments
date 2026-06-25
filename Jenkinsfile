@@ -7,6 +7,7 @@ pipeline {
     agent any
 
     environment {
+        // These IDs must match the ID field in Jenkins Credentials exactly
         MAILOSAUR_API_KEY = credentials('MAILOSAUR_API_KEY')
         MAILOSAUR_SERVER_ID = credentials('MAILOSAUR_SERVER_ID')
     }
@@ -40,15 +41,18 @@ pipeline {
 
     post {
         always {
-            echo 'Publishing Playwright HTML Test Report...'
-            publishHTML(target: [
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'playwright-report',
-                reportFiles: 'index.html',
-                reportName: 'Playwright HTML Report'
-            ])
+            // node() block is required to access the workspace for the report
+            node {
+                echo 'Publishing Playwright HTML Test Report...'
+                publishHTML(target: [
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'playwright-report',
+                    reportFiles: 'index.html',
+                    reportName: 'Playwright HTML Report'
+                ])
+            }
         }
     }
 }
