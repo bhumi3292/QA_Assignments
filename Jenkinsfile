@@ -7,6 +7,7 @@ pipeline {
     agent any
 
     environment {
+        // Ensure these IDs match the 'ID' field in your Jenkins Credentials exactly
         MAILOSAUR_API_KEY = credentials('MAILOSAUR_API_KEY')
         MAILOSAUR_SERVER_ID = credentials('MAILOSAUR_SERVER_ID')
     }
@@ -14,7 +15,7 @@ pipeline {
     stages {
         stage('Configure Jenkins Environment') {
             steps {
-                echo 'Clearing Content Security Policy for HTML Reports...'
+                echo 'Clearing Content Security Policy...'
                 script {
                     clearCSP()
                 }
@@ -24,12 +25,12 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Installing testing packages...'
-                bat 'npm install'
+                bat 'npm ci'
                 echo 'Installing Playwright Browsers...'
                 bat 'npx playwright install --with-deps chromium'
             }
         }
-
+        
         stage('Execute Tests') {
             steps {
                 echo 'Running automation framework...'
@@ -40,17 +41,15 @@ pipeline {
 
     post {
         always {
-            node('') {
-                echo 'Publishing Playwright HTML Test Report...'
-                publishHTML(target: [
-                    allowMissing: true,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'playwright-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Playwright HTML Report'
-                ])
-            }
+            echo 'Publishing Playwright HTML Test Report...'
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'playwright-report',
+                reportFiles: 'index.html',
+                reportName: 'Playwright HTML Report'
+            ])
         }
     }
 }
