@@ -7,7 +7,6 @@ pipeline {
     agent any
 
     environment {
-        // Ensure these IDs match the 'ID' field in your Jenkins Credentials exactly
         MAILOSAUR_API_KEY = credentials('MAILOSAUR_API_KEY')
         MAILOSAUR_SERVER_ID = credentials('MAILOSAUR_SERVER_ID')
     }
