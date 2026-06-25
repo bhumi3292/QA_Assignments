@@ -1,4 +1,3 @@
-// Define the nonCPS method at the very top of your file
 @NonCPS
 def clearCSP() {
     System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
@@ -7,12 +6,16 @@ def clearCSP() {
 pipeline {
     agent any
 
+    environment {
+        MAILOSAUR_API_KEY = credentials('MAILOSAUR_API_KEY')
+        MAILOSAUR_SERVER_ID = credentials('MAILOSAUR_SERVER_ID')
+    }
+
     stages {
         stage('Configure Jenkins Environment') {
             steps {
                 echo 'Clearing Content Security Policy for HTML Reports...'
                 script {
-                    // Call the method safely here
                     clearCSP()
                 }
             }
@@ -23,10 +26,10 @@ pipeline {
                 echo 'Installing testing packages...'
                 bat 'npm install'
                 echo 'Installing Playwright Browsers...'
-                bat 'npx playwright install'
+                bat 'npx playwright install --with-deps chromium'
             }
         }
-        
+
         stage('Execute Tests') {
             steps {
                 echo 'Running automation framework...'
